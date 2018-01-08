@@ -27,10 +27,10 @@
     <mt-popup v-model="cityPickerVisible" position="bottom" class="qdd-popup-bottom">
       <div class="btn-wrap">
         <a class="btn-cancel" @click="cityPickerVisible = false">取消</a>
-        <a class="btn-sure" @click="fillAddress">确定</a>
+        <a class="btn-sure" @click="onFillAddress">确定</a>
       </div>
       <div style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden;position: absolute;bottom: 13.25rem;"></div>
-      <mt-picker class="select" :slots="slots" value-key="aname" @change="onValuesChange"></mt-picker>
+      <mt-picker class="select" :slots="addressSlots"  value-key="aname" @change="onValuesChange"></mt-picker>
     </mt-popup>
   </div>
 
@@ -43,53 +43,61 @@
     data () {
       return {
         cityPickerVisible: false,
-        slots: slots,
-        temp_addr: '',
-        address: ''
+        addressSlots: slots,
+        address: '',
+        tempAddress: ''
       }
     },
     methods: {
 
-      fillAddress () {
-        // 填入省市区
-        this.address = this.temp_addr
-        this.cityPickerVisible = false
-      },
       initAddress () {
-        this.slots[0].values = address.filter((item, index) => {
+        this.addressSlots[0].values = address.filter((item, index) => {
           if (item.apid === 0) {
             return item
           }
         })
+        this.addressSlots[1].values = address.filter((item, index) => {
+          if (item.apid === this.addressSlots[0].values[0].aid) {
+            return item
+          }
+        })
+        this.addressSlots[2].values = address.filter((item, index) => {
+          if (item.apid === this.addressSlots[1].values[0].aid) {
+            return item
+          }
+        })
+      },
+      onFillAddress () {
+        // 填入省市区
+        this.address = this.tempAddress
+        this.cityPickerVisible = !this.cityPickerVisible
       },
       onValuesChange (picker, values) {
-        // 防止没有省份时报错
         if (values[0]) {
-          this.slots[1].values = address.filter((item, index) => {
+          let city = address.filter((item, index) => {
             if (item.apid === values[0].aid) {
               return item
             }
           })
+          picker.setSlotValues(1, city)
         }
-        // 防止没有市时报错
         if (values[1]) {
-          this.slots[2].values = address.filter((item, index) => {
+          let area = address.filter((item, index) => {
             if (item.apid === values[1].aid) {
               return item
             }
           })
+          picker.setSlotValues(2, area)
         }
         // 防止没有区时报错
         if (values[2]) {
           // 这里可以指定地址符，此处以空格进行连接
-          this.temp_addr = values[0].aname + ' ' + values[1].aname + ' ' + values[2].aname
+          this.tempAddress = values[0].aname + ' ' + values[1].aname + ' ' + values[2].aname
         }
       }
     },
     mounted () {
-      this.$nextTick(function () {
-        this.initAddress()
-      })
+      this.initAddress()
     }
   }
 </script>
