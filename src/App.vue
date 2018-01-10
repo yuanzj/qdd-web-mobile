@@ -95,5 +95,32 @@
     vertical-align: bottom;
   }
 
+  .lm-text-text {
+    color: #212121 !important;
+  }
+
+  .lm-text-second {
+    color: #757575 !important;
+  }
+
+  .lm-text-red {
+    color: #E64E42 !important;
+  }
+
+  .lm-font-default {
+    font-size: 1rem;
+  }
+
+  .lm-font-second {
+    font-size: 0.875rem;
+  }
+
+  .lm-font-sm {
+    font-size: 0.75rem;
+  }
+
+  .lm-font-head {
+    font-size: 1.5rem;
+  }
 
 </style>

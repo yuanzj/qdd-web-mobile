@@ -1,7 +1,9 @@
 <template>
   <div class="v-button">
-    <img v-bind:src="image" class="v-button-icon"/>
-    <p class="v-button-title">{{ title }}</p>
+    <router-link to="/my-insurance">
+      <img v-bind:src="image" class="v-button-icon"/>
+      <p class="v-button-title">{{ title }}</p>
+    </router-link>
   </div>
 </template>
 
