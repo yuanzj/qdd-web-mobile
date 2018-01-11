@@ -1,23 +1,58 @@
 <template>
-  <router-link to="/p-detail">
-    <div class="p-container">
+    <div class="p-container" @click="showDetail">
       <img class="p-image" src="../../static/images/p1.png"/>
       <div class="p-content">
-        <div class="p-title">盗抢险</div>
+        <div class="p-title">{{ title }}</div>
 
-        <div class="p-desc">盗抢险盗抢险盗抢险盗抢险盗抢险</div>
+        <div class="p-desc">{{ desc }}</div>
 
         <div class="p-price">
-          <span style="font-size: 1.5rem;color: #E64E42;font-weight: bold">68.0</span> 元
+          <span style="font-size: 1.5rem;color: #E64E42;font-weight: bold">{{ price }}</span> 元
         </div>
       </div>
     </div>
-  </router-link>
 </template>
 
 <script>
   export default {
-    name: 'product-item'
+    name: 'product-item',
+    props: {
+      id: {
+        type: Number
+      },
+      title: {
+        type: String
+      },
+      desc: {
+        type: String
+      },
+      price: {
+        type: Number
+      },
+      model: {
+        type: String
+      },
+      outUrl: {
+        type: String
+      }
+    },
+    data () {
+      return {}
+    },
+    methods: {
+      showDetail () {
+        if (this.model === 'SELF') {
+          this.$store.commit('setCurrentIns', {
+            id: this.id,
+            title: this.title,
+            description: this.desc
+          })
+          this.$router.push('/p-detail')
+        } else {
+          window.location.href = this.outUrl
+        }
+      }
+    }
   }
 </script>
 

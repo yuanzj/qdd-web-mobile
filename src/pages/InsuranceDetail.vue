@@ -4,32 +4,44 @@
     <div style="background: white">
       <img src="../../static/images/openSolutionDownImg.jpeg"/>
 
-      <span class="p-detail-desc">盗抢险产品描述盗抢险产品描述盗抢险产品描述盗抢险产品描述盗抢险产品描述盗抢险产品描述</span>
+      <span class="p-detail-desc">{{ $store.state.currentIns.description }}</span>
     </div>
 
     <div class="table-head-title">投保人信息</div>
     <div class="page-part">
-      <mt-field class="padding-common" label="被保险人姓名" placeholder="请输入用户姓名" :attr="{ maxlength: 10 }"></mt-field>
-      <mt-field label="身份证号码" placeholder="16岁以上"></mt-field>
-      <mt-field label="手机号码" placeholder="请输入手机号" type="tel"></mt-field>
-      <mt-field label="中控设备号" placeholder="请输入设备号"></mt-field>
+      <mt-field label="被保险人姓名" placeholder="请输入用户姓名" :attr="{ maxlength: 10 }" v-model="applicant"></mt-field>
+      <mt-field label="身份证号码" placeholder="16岁以上" v-model="idNumber"></mt-field>
+      <mt-field label="手机号码" placeholder="请输入手机号" type="tel" v-model="phoneNumber"></mt-field>
+      <mt-field label="中控设备号" placeholder="请输入设备号" v-model="ccuSn"></mt-field>
     </div>
 
     <div class="table-head-title">被保险车辆信息</div>
     <div class="page-part">
-      <mt-field label="购买日期" placeholder="请输入用户名" type="date"></mt-field>
-      <mt-field label="车辆品牌" placeholder="请输入车辆品牌"></mt-field>
-      <mt-field label="车辆型号" placeholder="请输入车辆型号"></mt-field>
-      <mt-field label="车架号" placeholder="请输入车辆号"></mt-field>
-      <mt-field label="购买金额" placeholder="请输入购买金额"></mt-field>
-      <mt-field label="所在省市" placeholder="请选择城市" @click.native="cityPickerVisible = true" v-model="address"></mt-field>
+      <mt-field label="购买日期" placeholder="请输入购买日期" type="date" v-model="buyTime"></mt-field>
+      <mt-field label="车辆品牌" placeholder="请输入车辆品牌" v-model="brand"></mt-field>
+      <mt-field label="车辆型号" placeholder="请输入车辆型号" v-model="model"></mt-field>
+      <mt-field label="车架号" placeholder="请输入车辆号" v-model="vin"></mt-field>
+      <mt-field label="购买金额" placeholder="请输入购买金额" v-model="buyPrice"></mt-field>
+      <mt-cell title="所在省市" :value="address" @click.native="cityPickerVisible = true"></mt-cell>
+
+
       <mt-cell title="购车发票">
-        <img src="../assets/logo.png" style="width: 2.5rem;height: 2.5rem">
+        <div class="avatar">
+          <img :src="billImg" />
+          <input class="upImg" name="file" accept="image/png,image/gif,image/jpeg" type="file" @change="updateImg('billImg')"/>
+        </div>
       </mt-cell>
 
       <mt-cell title="车辆图片">
-        <img src="../assets/logo.png" style="width: 2.5rem;height: 2.5rem">
-        <img src="../assets/logo.png" style="width: 2.5rem;height: 2.5rem;margin-left: 1rem">
+        <div class="avatar">
+          <img :src="scooterImg1" />
+          <input class="upImg" name="file" accept="image/png,image/gif,image/jpeg" type="file" @change="updateImg('scooterImg1')"/>
+        </div>
+        <div style="width: 1rem"></div>
+        <div class="avatar">
+          <img :src="scooterImg2" />
+          <input class="upImg" name="file" accept="image/png,image/gif,image/jpeg" type="file" @change="updateImg('scooterImg2')"/>
+        </div>
       </mt-cell>
 
     </div>
@@ -58,7 +70,7 @@
 
     <div class="settlement">
       <div>
-        <div class="lm-font-default"><span class="lm-text-red lm-font-head">{{ total }}</span>元 保<span class="lm-text-text lm-font-head">{{ optionValue }}</span>元</div>
+        <div class="lm-font-default"><span class="lm-text-red lm-font-head">{{ finalPrice }}</span>元 保<span class="lm-text-text lm-font-head">{{ selectedSolution }}</span>元</div>
       </div>
 
       <div class="tobuy" @click="addOrder">立即购买</div>
@@ -77,36 +89,52 @@
 </template>
 
 <script>
+  import {Toast} from 'mint-ui'
   import {address, slots} from '../components/address'
   export default {
     name: 'insurance-detail',
     data () {
       return {
+        applicant: null,
+        phoneNumber: null,
+        idNumber: null,
+        province: null,
+        city: null,
+        district: null,
+        brand: null,
+        model: null,
+        vin: null,
+        buyTime: null,
+        buyPrice: null,
+        ccuSn: null,
+        billImg: '../static/images/icon-default.png',
+        billFile: null,
+        scooterImg1: '../static/images/icon-default.png',
+        scooterFile1: null,
+        scooterImg2: '../static/images/icon-default.png',
+        scooterFile2: null,
         cityPickerVisible: false,
         addressSlots: slots,
-        address: '',
+        address: '请点击选择省市',
         tempAddress: '',
-        optionValue: '1500',
-        options: [
-          {
-            label: '盗抢险保额1500元',
-            value: '1500',
-            disabled: false
-          },
-          {
-            label: '盗抢险保额2000元',
-            value: '2000',
-            disabled: false
-          },
-          {
-            label: '盗抢险保额3000元',
-            value: '3000',
-            disabled: false
-          }
-        ],
-        agreementValue: [],
-        agreementOptions: ['保险条款'],
-        total: 68
+        optionValue: '0',
+        options: []
+      }
+    },
+    computed: {
+      finalPrice: function () {
+        if (this.options && this.options.length > 0) {
+          return this.options[Number(this.optionValue)].price
+        } else {
+          return ''
+        }
+      },
+      selectedSolution: function () {
+        if (this.options && this.options.length > 0) {
+          return this.options[Number(this.optionValue)].desc
+        } else {
+          return ''
+        }
       }
     },
     methods: {
@@ -154,14 +182,158 @@
         if (values[2]) {
           // 这里可以指定地址符，此处以空格进行连接
           this.tempAddress = values[0].aname + ' ' + values[1].aname + ' ' + values[2].aname
+          this.province = values[0].aname
+          this.city = values[1].aname
+          this.district = values[2].aname
+        }
+      },
+      loadSolutionList () {
+        this.axios.get('/v1.0/solutions',
+          {
+            params: {
+              page: 1,
+              limit: 20,
+              sidx: 'id',
+              order: 'asc',
+              productId: this.$store.state.currentIns.id
+            }
+          }
+        ).then((res) => {
+          if (res.data.data.list) {
+            let index = 0
+            this.options = res.data.data.list.map(function (item) {
+              item.label = item.name
+              item.value = String(index++)
+              item.disabled = false
+
+              return item
+            })
+          }
+        })
+          .catch(error => {
+            console.log(error)
+          })
+      },
+      updateImg (tag) {
+        console.log(tag)
+        let reader = new FileReader()
+        let img1 = event.target.files[0]
+        reader.readAsDataURL(img1)
+        let that = this
+        reader.onloadend = function () {
+          if (tag === 'billImg') {
+            that.billImg = reader.result
+            that.billFile = img1
+          } else if (tag === 'scooterImg1') {
+            that.scooterImg1 = reader.result
+            that.scooterFile1 = img1
+          } else if (tag === 'scooterImg2') {
+            that.scooterImg2 = reader.result
+            that.scooterFile2 = img1
+          }
         }
       },
       addOrder () {
+        if (!this.applicant) {
+          Toast('请输入用户姓名！')
+          return false
+        }
+        if (!this.idNumber) {
+          Toast('请输入身份证号码！')
+          return false
+        }
+        if (!this.phoneNumber) {
+          Toast('请输入手机号码！')
+          return false
+        }
+        if (!this.ccuSn) {
+          Toast('请输入设备SN号！')
+          return false
+        }
+        if (!this.buyTime) {
+          Toast('请输入购买日期！')
+          return false
+        }
+        if (!this.brand) {
+          Toast('请输入品牌！')
+          return false
+        }
+        if (!this.model) {
+          Toast('请输入型号！')
+          return false
+        }
+        if (!this.vin) {
+          Toast('请输入车架号！')
+          return false
+        }
+        if (!this.buyPrice) {
+          Toast('请输入购买金额！')
+          return false
+        }
+        if (!this.province) {
+          Toast('请选择城市！')
+          return false
+        }
+        if (!this.city) {
+          Toast('请选择城市！')
+          return false
+        }
+        if (!this.billFile) {
+          Toast('请添加发票图片！')
+          return false
+        }
+        if (!this.scooterFile1) {
+          Toast('请添加车辆图片！')
+          return false
+        }
+        if (!this.scooterFile2) {
+          Toast('请添加车辆图片！')
+          return false
+        }
+        let param = new FormData()
+        param.append('applicant', this.applicant)
+        param.append('version', '0')
+        param.append('creator', 'system')
+        param.append('status', '0')
+        param.append('idType', '0')
+        param.append('idNumber', this.idNumber)
+        param.append('province', this.province)
+        param.append('city', this.city)
+        param.append('district', this.district)
+        param.append('brand', this.brand)
+        param.append('model', this.model)
+        param.append('vin', this.vin)
+        param.append('buyTime', this.buyTime + ' 00:00:00')
+        param.append('buyPrice', this.buyPrice)
+        param.append('ccuSn', this.ccuSn)
+        param.append('belong', '1')
+        param.append('productId', this.$store.state.currentIns.id)
+        param.append('solutionId', this.options[Number(this.optionValue)].id)
+        param.append('price', this.options[Number(this.optionValue)].price)
+        param.append('phoneNumber', this.phoneNumber)
+        param.append('userId', this.$store.state.qddUserId)
+        param.append('billFile', this.billFile, this.billFile.name)
+        param.append('scooterFiles', this.scooterFile1, this.scooterFile1.name)
+        param.append('scooterFiles', this.scooterFile2, this.scooterFile2.name)
 
+        let config = {
+          headers: {'Content-Type': 'multipart/form-data'}
+        }
+        this.axios.post('/v1.0/orders/', param, config)
+          .then((res) => {
+            console.log(res)
+          }).catch(error => {
+            console.log(error)
+          })
       }
     },
     mounted () {
       this.initAddress()
+      if (!this.$store.state.currentIns.description) {
+        this.$router.go(-1)
+      }
+      document.title = this.$store.state.currentIns.title
+      this.loadSolutionList()
     }
   }
 </script>
@@ -260,6 +432,26 @@
     height: 100%;
     background-color: #3B9AD9;
     font-size: 0.9375rem;
+  }
+
+  .avatar{
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .avatar > img {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .avatar .upImg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    opacity: 0;
   }
 
 </style>

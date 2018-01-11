@@ -5,13 +5,20 @@
       <v-image-button title="保障中" image="../static/images/icon-safe.png"></v-image-button>
       <v-image-button title="已过期" image="../static/images/icon-expired.png"></v-image-button>
     </div>
-    <mt-loadmore>
-      <div style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden;"></div>
-      <product-item></product-item>
-      <div style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden;padding-left: 7.25rem"></div>
-      <product-item></product-item>
-      <div style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden;"></div>
-    </mt-loadmore>
+
+    <div>
+
+      <div v-for="(item,index)  in productList" style="background: white">
+        <div v-if="index === 0" style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden;"></div>
+
+        <product-item :key="item.id" :id="item.id" :title="item.name" :desc="item.desc" :price="item.price" :model="item.model" :outUrl="item.outUrl"></product-item>
+
+        <div v-if="index !== productList.length-1" style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden; margin-left: 8.25rem"></div>
+        <div v-else style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden"></div>
+
+      </div>
+
+    </div>
   </div>
 </template>
 
@@ -24,6 +31,34 @@
     components: {
       VImageButton,
       ProductItem
+    },
+    data () {
+      return {
+        productList: []
+      }
+    },
+    methods: {
+      loadProductList () {
+        this.axios.get('/v1.0/products',
+          {
+            params: {
+              page: 1,
+              limit: 20,
+              sidx: 'id',
+              order: 'asc'
+            }
+          }
+        ).then((res) => {
+          this.productList = res.data.data.list
+        })
+          .catch(error => {
+            console.log(error)
+          })
+      }
+    },
+    mounted () {
+      document.title = '保险服务'
+      this.loadProductList()
     }
   }
 </script>
