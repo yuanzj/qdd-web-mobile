@@ -1,20 +1,38 @@
 <template>
-  <router-link to="/my-insurance-detail">
-    <div class="p-container">
-      <div class="p-content">
-        <div class="p-title">盗抢险</div>
-        <div class="p-title1">保3500元</div>
-      </div>
-      <div class="p-desc">
-        提交时间:2018-01-10
-      </div>
+  <div class="p-container" @click="showMyInsuranceDetail">
+    <div class="p-content">
+      <div class="p-title">{{ title }}</div>
+      <div class="p-title1">{{ desc }}</div>
     </div>
-  </router-link>
+    <div class="p-desc">
+      提交时间:{{ createTime }}
+    </div>
+  </div>
 </template>
 
 <script>
   export default {
-    name: 'insurance-item'
+    name: 'insurance-item',
+    props: {
+      index: {
+        type: Number
+      },
+      title: {
+        type: String
+      },
+      desc: {
+        type: String
+      },
+      createTime: {
+        type: String
+      }
+    },
+    methods: {
+      showMyInsuranceDetail () {
+        this.$store.commit('setCurrentOrderIndex', this.index)
+        this.$router.push('/my-insurance-detail')
+      }
+    }
   }
 </script>
 

@@ -1,9 +1,7 @@
 <template>
-  <div class="v-button">
-    <router-link to="/my-insurance">
-      <img v-bind:src="image" class="v-button-icon"/>
-      <p class="v-button-title">{{ title }}</p>
-    </router-link>
+  <div class="v-button"  @click="showMyInsurance">
+    <img v-bind:src="image" class="v-button-icon"/>
+    <p class="v-button-title">{{ title }}</p>
   </div>
 </template>
 
@@ -18,10 +16,19 @@
       image: {
         type: String,
         default: '../static/images/logo.png'
+      },
+      status: {
+        type: String
       }
     },
     data () {
       return {}
+    },
+    methods: {
+      showMyInsurance () {
+        this.$store.commit('setSelectedOrderStatus', this.status)
+        this.$router.push('/my-insurance')
+      }
     }
   }
 </script>

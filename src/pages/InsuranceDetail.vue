@@ -24,7 +24,6 @@
       <mt-field label="购买金额" placeholder="请输入购买金额" v-model="buyPrice"></mt-field>
       <mt-cell title="所在省市" :value="address" @click.native="cityPickerVisible = true"></mt-cell>
 
-
       <mt-cell title="购车发票">
         <div class="avatar">
           <img :src="billImg" />
@@ -58,9 +57,7 @@
 
       <label class="mint-checklist-label">
         <span class="mint-checkbox">
-          <input
-            class="mint-checkbox-input"
-            type="checkbox">
+          <input class="mint-checkbox-input" type="checkbox" v-model="agreement">
           <span class="mint-checkbox-core"></span>
         </span>
         我已阅读并同意
@@ -89,12 +86,13 @@
 </template>
 
 <script>
-  import {Toast} from 'mint-ui'
+  import {Indicator, Toast, MessageBox} from 'mint-ui'
   import {address, slots} from '../components/address'
   export default {
     name: 'insurance-detail',
     data () {
       return {
+        agreement: false,
         applicant: null,
         phoneNumber: null,
         idNumber: null,
@@ -234,6 +232,7 @@
         }
       },
       addOrder () {
+        console.log(this.agreement)
         if (!this.applicant) {
           Toast('请输入用户姓名！')
           return false
@@ -290,11 +289,12 @@
           Toast('请添加车辆图片！')
           return false
         }
+        if (!this.agreement) {
+          Toast('请勾选 我已阅读并同意《保险条款》和《投保须知》')
+          return false
+        }
         let param = new FormData()
         param.append('applicant', this.applicant)
-        param.append('version', '0')
-        param.append('creator', 'system')
-        param.append('status', '0')
         param.append('idType', '0')
         param.append('idNumber', this.idNumber)
         param.append('province', this.province)
@@ -303,10 +303,13 @@
         param.append('brand', this.brand)
         param.append('model', this.model)
         param.append('vin', this.vin)
-        param.append('buyTime', this.buyTime + ' 00:00:00')
+        if (this.buyTime.length === 10) {
+          param.append('buyTime', this.buyTime + ' 00:00:00')
+        } else {
+          param.append('buyTime', this.buyTime)
+        }
         param.append('buyPrice', this.buyPrice)
         param.append('ccuSn', this.ccuSn)
-        param.append('belong', '1')
         param.append('productId', this.$store.state.currentIns.id)
         param.append('solutionId', this.options[Number(this.optionValue)].id)
         param.append('price', this.options[Number(this.optionValue)].price)
@@ -319,11 +322,17 @@
         let config = {
           headers: {'Content-Type': 'multipart/form-data'}
         }
-        this.axios.post('/v1.0/orders/', param, config)
+        Indicator.open('提交中...')
+        this.axios.post('/v1.0/orders', param, config)
           .then((res) => {
             console.log(res)
+            Indicator.close()
+            MessageBox.alert('提交成功,去支付', '提示').then(action => {
+              this.$router.go(-1)
+            })
           }).catch(error => {
             console.log(error)
+            Indicator.close()
           })
       }
     },
@@ -371,6 +380,7 @@
     padding: 0 20px;
     font-size: 14px;
     background: #fff;
+    z-index: 99999;
   }
 
   .btn-cancel {
@@ -410,7 +420,7 @@
     width: 100%;
     bottom: 0;
     position: fixed;
-    height: 2.75rem;
+    height: 3rem;
     padding-left: 1rem;
     box-shadow: 0 -1px 15px #888888;
     background-color: #fff;
@@ -426,7 +436,7 @@
 
   .settlement .tobuy {
     text-align: center;
-    line-height: 2.75rem;
+    line-height: 3rem;
     color: #ffffff;
     width: 7rem;
     height: 100%;
@@ -438,6 +448,7 @@
     position: relative;
     width: 2.5rem;
     height: 2.5rem;
+    margin-left: 1rem;
   }
 
   .avatar > img {
@@ -450,7 +461,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 99999;
+    z-index: 100;
     opacity: 0;
   }
 

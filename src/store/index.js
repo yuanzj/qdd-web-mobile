@@ -8,7 +8,10 @@ Vue.use(Vuex)
 const state = {
 
   currentIns: {},
-  qddUserId: ''
+  qddUserId: '',
+  selectedOrderStatus: '0',
+  orderList: [],
+  currentOrderIndex: 0
 
 }
 
@@ -21,6 +24,18 @@ const mutations = {
   setQddUserId (state, ll) {
     state.qddUserId = ll
     console.log(state.qddUserId)
+  },
+  setSelectedOrderStatus (state, ll) {
+    state.selectedOrderStatus = ll
+    console.log(state.selectedOrderStatus)
+  },
+  setOrderList (state, ll) {
+    state.orderList = ll
+    console.log(state.orderList)
+  },
+  setCurrentOrderIndex (state, ll) {
+    state.currentOrderIndex = ll
+    console.log(state.currentOrderIndex)
   }
 }
 

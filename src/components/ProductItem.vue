@@ -7,7 +7,7 @@
         <div class="p-desc">{{ desc }}</div>
 
         <div class="p-price">
-          <span style="font-size: 1.5rem;color: #E64E42;font-weight: bold">{{ price }}</span> 元
+          <span style="font-size: 1.5rem;color: #E64E42;font-weight: bold">{{ price }}</span> 元起
         </div>
       </div>
     </div>
