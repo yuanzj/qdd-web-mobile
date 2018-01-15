@@ -61,27 +61,19 @@
   .p-container {
     display: -webkit-flex;
     display: flex;
-    /*横向*/
-    flex-direction: row;
-    /*不换行*/
-    flex-wrap: nowrap;
-    /*排列 起始端对齐*/
-    justify-content: flex-start;
-    /*对齐 居中对齐*/
-    align-items: center;
-    align-content: flex-start;
     height: 8.25rem;
     background: white;
   }
 
   .p-image {
+    margin: 1rem;
     width: 6.25rem;
     height: 6.25rem;
-    margin-left: 1rem;
   }
 
   .p-content {
-    flex-grow: 1;
+    -webkit-flex: 1;
+    flex: 1;
     display: -webkit-flex;
     display: flex;
     flex-direction: column;
@@ -90,7 +82,7 @@
     align-items: flex-start;
     align-content: flex-start;
     height: 8.25rem;
-    margin-left: 1rem;
+    width: 100%;
     margin-right: 1rem;
   }
 

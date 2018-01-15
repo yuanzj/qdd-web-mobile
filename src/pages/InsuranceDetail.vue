@@ -32,11 +32,14 @@
       </mt-cell>
 
       <mt-cell title="车辆图片">
+        <span class="lm-font-sm lm-text-second">正面照：</span>
         <div class="avatar">
           <img :src="scooterImg1" />
           <input class="upImg" name="file" accept="image/png,image/gif,image/jpeg" type="file" @change="updateImg('scooterImg1')"/>
         </div>
-        <div style="width: 1rem"></div>
+
+        <div style="width: 0.5rem"></div>
+        <span class="lm-font-sm lm-text-second">背面照：</span>
         <div class="avatar">
           <img :src="scooterImg2" />
           <input class="upImg" name="file" accept="image/png,image/gif,image/jpeg" type="file" @change="updateImg('scooterImg2')"/>
@@ -53,7 +56,7 @@
       :options="options">
     </mt-radio>
 
-    <div class="p-detail-container">
+    <div class="p-detail-container lm-font-sm">
 
       <label class="mint-checklist-label">
         <span class="mint-checkbox">
@@ -62,7 +65,19 @@
         </span>
         我已阅读并同意
       </label>
-      <a class="p-link">《保险条款》</a>和<a class="p-link">《投保须知》</a>
+      <a class="p-link lm-font-default" href="http://cjl3.rokyinfo.net/anbxtk/zabxtk.html">《保险条款》</a>。
+    </div>
+
+    <div class="p-detail-container-1 lm-font-sm">
+
+      <label class="mint-checklist-label">
+        <span class="mint-checkbox">
+          <input class="mint-checkbox-input" type="checkbox" v-model="agreement1">
+          <span class="mint-checkbox-core"></span>
+        </span>
+        已知本保险承担的"两轮非机动车"定义以《中华人名共和国道路交通法》及其他相关法律法规规定为准。
+      </label>
+
     </div>
 
     <div class="settlement">
@@ -73,6 +88,7 @@
       <div class="tobuy" @click="addOrder">立即购买</div>
     </div>
 
+    <div class="hide" v-html="alipay"></div>
 
     <mt-popup v-model="cityPickerVisible" position="bottom" class="qdd-popup-bottom">
       <div class="btn-wrap">
@@ -86,13 +102,14 @@
 </template>
 
 <script>
-  import {Indicator, Toast, MessageBox} from 'mint-ui'
+  import {Indicator, Toast} from 'mint-ui'
   import {address, slots} from '../components/address'
   export default {
     name: 'insurance-detail',
     data () {
       return {
         agreement: false,
+        agreement1: false,
         applicant: null,
         phoneNumber: null,
         idNumber: null,
@@ -116,7 +133,8 @@
         address: '请点击选择省市',
         tempAddress: '',
         optionValue: '0',
-        options: []
+        options: [],
+        alipay: ''// ali支付form表单信息
       }
     },
     computed: {
@@ -327,9 +345,14 @@
           .then((res) => {
             console.log(res)
             Indicator.close()
-            MessageBox.alert('提交成功,去支付', '提示').then(action => {
-              this.$router.go(-1)
-            })
+            if (res.data.code === 0) {
+              this.alipay = res.data.data
+              setTimeout(function () {
+                document.forms['_alipaysubmit_'].submit()
+              }, 0)
+            } else {
+              Toast(res.data.msg)
+            }
           }).catch(error => {
             console.log(error)
             Indicator.close()
@@ -349,6 +372,10 @@
 
 <style scoped>
 
+  .hide {
+    display: none;
+  }
+
   .p-detail-desc {
     word-wrap: break-word;
     word-break: break-all;
@@ -362,6 +389,7 @@
     margin-left: 1rem;
     margin-top: 1rem;
     margin-bottom: 0.5rem;
+    font-size: 0.75rem;
   }
 
   .qdd-popup-bottom {
@@ -398,10 +426,25 @@
 
   .p-link{
     color: #3B9AD9;
-    font-size: 0.875rem;
+    margin-top: -5px;
   }
 
   .p-detail-container {
+    display: -webkit-flex;
+    display: flex;
+    /*横向*/
+    flex-direction: row;
+    /*不换行*/
+    flex-wrap: nowrap;
+    /*排列 起始端对齐*/
+    justify-content: flex-start;
+    /*对齐 居中对齐*/
+    align-items: center;
+    align-content: flex-start;
+    margin: 1rem 1rem 0 1rem;
+  }
+
+  .p-detail-container-1 {
     display: -webkit-flex;
     display: flex;
     /*横向*/
@@ -448,7 +491,6 @@
     position: relative;
     width: 2.5rem;
     height: 2.5rem;
-    margin-left: 1rem;
   }
 
   .avatar > img {
