@@ -1,6 +1,6 @@
 <template>
     <div class="p-container" @click="showDetail">
-      <img class="p-image" src="../../static/images/p1.png"/>
+      <img class="p-image" :src="image"/>
       <div class="p-content">
         <div class="p-title">{{ title }}</div>
 
@@ -19,6 +19,13 @@
     props: {
       id: {
         type: Number
+      },
+      image: {
+        type: String,
+        default: '../../static/images/p.png'
+      },
+      imageLarge: {
+        type: String
       },
       title: {
         type: String
@@ -45,6 +52,7 @@
           this.$store.commit('setCurrentIns', {
             id: this.id,
             title: this.title,
+            imageLarge: this.imageLarge,
             description: this.desc
           })
           this.$router.push('/p-detail')

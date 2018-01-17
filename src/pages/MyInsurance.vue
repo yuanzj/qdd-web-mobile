@@ -15,7 +15,7 @@
         <div v-for="(item,index)  in orderList" style="background: white">
           <div v-if="index === 0" style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden;"></div>
 
-          <insurance-item :key="item.id" :index="index" :title="item.insuranceProductEntity.name" :desc="item.solutionEntity.name" :createTime="item.createTime"></insurance-item>
+          <insurance-item :key="item.id" :index="index" :title="item.insuranceProductEntity.name" :desc="'保额'+item.solutionEntity.coverage" :createTime="item.createTime"></insurance-item>
 
           <div v-if="index !== orderList.length-1" style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden; margin-left: 1rem"></div>
           <div v-else style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden"></div>
@@ -27,7 +27,7 @@
         <div v-for="(item,index)  in orderList" style="background: white">
           <div v-if="index === 0" style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden;"></div>
 
-          <insurance-item :key="item.id" :index="index" :title="item.insuranceProductEntity.name" :desc="item.solutionEntity.name" :createTime="item.createTime"></insurance-item>
+          <insurance-item :key="item.id" :index="index" :title="item.insuranceProductEntity.name" :desc="'保额'+item.solutionEntity.coverage" :createTime="item.createTime"></insurance-item>
 
           <div v-if="index !== orderList.length-1" style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden; margin-left: 1rem"></div>
           <div v-else style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden"></div>
@@ -38,7 +38,7 @@
         <div v-for="(item,index)  in orderList" style="background: white">
           <div v-if="index === 0" style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden;"></div>
 
-          <insurance-item :key="item.id" :index="index" :title="item.insuranceProductEntity.name" :desc="item.solutionEntity.name" :createTime="item.createTime"></insurance-item>
+          <insurance-item :key="item.id" :index="index" :title="item.insuranceProductEntity.name" :desc="'保额'+item.solutionEntity.coverage" :createTime="item.createTime"></insurance-item>
 
           <div v-if="index !== orderList.length-1" style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden; margin-left: 1rem"></div>
           <div v-else style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden"></div>
@@ -49,7 +49,7 @@
         <div v-for="(item,index)  in orderList" style="background: white">
           <div v-if="index === 0" style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden;"></div>
 
-          <insurance-item :key="item.id" :index="index" :title="item.insuranceProductEntity.name" :desc="item.solutionEntity.name" :createTime="item.createTime"></insurance-item>
+          <insurance-item :key="item.id" :index="index" :title="item.insuranceProductEntity.name" :desc="'保额'+item.solutionEntity.coverage" :createTime="item.createTime"></insurance-item>
 
           <div v-if="index !== orderList.length-1" style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden; margin-left: 1rem"></div>
           <div v-else style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden"></div>
@@ -62,6 +62,7 @@
 
 <script>
   import InsuranceItem from '@/components/InsuranceItem'
+  import {MessageBox} from 'mint-ui'
   export default {
     name: 'my-insurance',
     components: {
@@ -103,10 +104,12 @@
     },
     mounted () {
       document.title = '我的保险'
-      this.loadMyInsuranceList()
       if (!this.$store.state.qddUserId) {
-        this.$router.go(-1)
+        MessageBox.alert('您还没有登录，请先登录').then(action => {
+          this.$router.go(-1)
+        })
       }
+      this.loadMyInsuranceList()
     }
   }
 </script>

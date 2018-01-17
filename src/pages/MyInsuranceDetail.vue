@@ -5,14 +5,14 @@
       <mt-cell title="产品名称" :value="insuranceProductEntity.name"></mt-cell>
       <mt-cell title="保单状态" :value="status"></mt-cell>
       <mt-cell title="保单金额" :value="order.price+'元'"></mt-cell>
-      <mt-cell title="保险金额" :value="solutionEntity.desc+'元'"></mt-cell>
+      <mt-cell title="保险金额" :value="solutionEntity.coverage+'元'"></mt-cell>
       <mt-cell title="提交时间" :value="order.createTime"></mt-cell>
       <mt-cell title="受益人" :value="order.applicant"></mt-cell>
       <mt-cell title="理赔流程" >
-        <span style="color: #3b9ad9">《理赔流程》</span>
+        <a style="color: #3b9ad9" href="http://cjl3.rokyinfo.net/anbxtk/zalplc.html">《理赔流程》</a>
       </mt-cell>
       <mt-cell title="适用条款" >
-        <span style="color: #3b9ad9">《适用条款》</span>
+        <a style="color: #3b9ad9" href="http://cjl3.rokyinfo.net/anbxtk/zabxtk.html">《保险条款》</a>
       </mt-cell>
     </div>
     <div class="table-head-title">投保人</div>
@@ -28,10 +28,11 @@
       <mt-cell title="车辆型号" :value="order.model"></mt-cell>
       <mt-cell title="车架号" :value="order.vin"></mt-cell>
       <mt-cell title="购买金额" :value="order.buyPrice + '元'"></mt-cell>
-      <mt-cell title="发票图片" > <img :src="order.billImg"  style="width: 2.5rem;height: 2.5rem"/></mt-cell>
+      <mt-cell title="发票图片" > <img :src="order.billImg"  class="img"/></mt-cell>
       <mt-cell title="车辆图片" >
-        <img :src="scooterImg1"  style="width: 2.5rem;height: 2.5rem"/>
-        <img :src="scooterImg2"  style="width: 2.5rem;height: 2.5rem;margin-left: 1rem"/>
+        <img :src="scooterImg1"  class="img"/>
+        <div style="width: 1rem"></div>
+        <img :src="scooterImg2"  class="img"/>
       </mt-cell>
       <mt-cell title="绑定中控号" :value="order.ccuSn"></mt-cell>
     </div>
@@ -42,11 +43,18 @@
         更换设备
       </div>
     </div>
+
+    <div v-if="this.order.status === 0" class="settlement" @click="pay">
+      <div class="toChg lm-font-default">
+        支付
+      </div>
+    </div>
+    <div class="hide" v-html="alipay"></div>
   </div>
 </template>
 
 <script>
-  import { MessageBox } from 'mint-ui'
+  import {Indicator, Toast, MessageBox} from 'mint-ui'
   export default {
     name: 'my-insurance-detail',
     data () {
@@ -55,7 +63,9 @@
         insuranceProductEntity: {},
         solutionEntity: {},
         scooterImg1: '',
-        scooterImg2: ''
+        scooterImg2: '',
+        // ali支付form表单信息
+        alipay: ''
       }
     },
     computed: {
@@ -87,11 +97,55 @@
     },
     methods: {
       chgUe: function () {
-        MessageBox.prompt(' ', '请输入新的设备SN号').then(({ value }) => {
-          if (value) {
+        MessageBox.prompt('请输入新的设备SN号').then(({ value }) => {
+          if (value && value.length === 10) {
             console.log(value)
+            Indicator.open('更换中...')
+            this.axios.put('/v1.0/orders/update?' + 'ccuSn=' + value + '&orderNo=' + this.order.orderNo).then((res) => {
+              console.log(res)
+              Indicator.close()
+              if (res.data.code === 0) {
+                Toast('更换成功！')
+                this.order.ccuSn = value
+              } else {
+                Toast(res.data.msg)
+              }
+            })
+              .catch(error => {
+                Indicator.close()
+                console.log(error)
+              })
+          } else {
+            Toast('请输入10位设备SN号')
           }
         })
+      },
+      pay: function () {
+        Indicator.open('获取支付信息...')
+        this.axios.get('/v1.0/orders/payinfo-web',
+          {
+            params: {
+              orderNo: this.order.orderNo
+            }
+          }
+        ).then((res) => {
+          console.log(res)
+          Indicator.close()
+          if (res.data.code === 0) {
+            if (res.data.data) {
+              this.alipay = res.data.data
+              setTimeout(function () {
+                document.forms['_alipaysubmit_'].submit()
+              }, 0)
+            }
+          } else {
+            Toast(res.data.msg)
+          }
+        })
+          .catch(error => {
+            Indicator.close()
+            console.log(error)
+          })
       }
     },
     mounted () {
@@ -114,6 +168,14 @@
     margin-left: 1rem;
     margin-top: 1rem;
     margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  img {
+    width: auto;
+    height: auto;
+    max-width: 2.5rem;
+    max-height: 2.5rem;
   }
 
   .settlement {

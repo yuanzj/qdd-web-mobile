@@ -11,7 +11,7 @@
       <div v-for="(item,index)  in productList" style="background: white">
         <div v-if="index === 0" style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden;"></div>
 
-        <product-item :key="item.id" :id="item.id" :title="item.name" :desc="item.desc" :price="item.price" :model="item.model" :outUrl="item.outUrl"></product-item>
+        <product-item :key="item.id" :id="item.id" :image="item.image" :imageLarge="item.imageLarge" :title="item.name" :desc="item.desc" :price="item.price" :model="item.model" :outUrl="item.outUrl"></product-item>
 
         <div v-if="index !== productList.length-1" style="margin-left: 8.25rem">
           <div  style="width:100%;height:1px;margin:0px ;autopadding:0px;background-color:#E0E0E0;overflow:hidden;"></div>

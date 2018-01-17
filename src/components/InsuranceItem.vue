@@ -60,6 +60,9 @@
     color: #212121;
     font-size: 1rem;
     flex-grow: 1;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
   }
 
   .p-title1  {
@@ -67,6 +70,10 @@
     color: #212121;
     font-size: 1rem;
     flex-grow: 0;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+    margin-left: 0.5rem;
   }
 
   .p-desc {

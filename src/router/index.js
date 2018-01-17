@@ -9,6 +9,8 @@ import InsuranceDetail from '@/pages/InsuranceDetail'
 import MyInsurance from '@/pages/MyInsurance'
 // 我的保单详情
 import MyInsuranceDetail from '@/pages/MyInsuranceDetail'
+// 支付完成
+import PayComplete from '@/pages/PayComplete'
 
 Vue.use(Router)
 
@@ -33,7 +35,11 @@ export default new Router({
       path: '/my-insurance-detail',
       name: 'MyInsuranceDetail',
       component: MyInsuranceDetail
+    },
+    {
+      path: '/pay-complete',
+      name: 'PayComplete',
+      component: PayComplete
     }
-
   ]
 })

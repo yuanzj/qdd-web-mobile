@@ -123,4 +123,7 @@
     font-size: 1.5rem;
   }
 
+  .lm-margin-t {
+    margin-top: 1rem;
+  }
 </style>

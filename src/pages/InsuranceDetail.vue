@@ -2,7 +2,7 @@
   <div class="page-field">
 
     <div style="background: white">
-      <img src="../../static/images/openSolutionDownImg.jpeg"/>
+      <img :src="pImage"/>
 
       <span class="p-detail-desc">{{ $store.state.currentIns.description }}</span>
     </div>
@@ -12,7 +12,7 @@
       <mt-field label="被保险人姓名" placeholder="请输入用户姓名" :attr="{ maxlength: 10 }" v-model="applicant"></mt-field>
       <mt-field label="身份证号码" placeholder="16岁以上" v-model="idNumber"></mt-field>
       <mt-field label="手机号码" placeholder="请输入手机号" type="tel" v-model="phoneNumber"></mt-field>
-      <mt-field label="中控设备号" placeholder="请输入设备号" v-model="ccuSn"></mt-field>
+      <mt-field label="中控设备号" placeholder="赠送保险设备可免费领取" v-model="ccuSn"></mt-field>
     </div>
 
     <div class="table-head-title">被保险车辆信息</div>
@@ -20,8 +20,8 @@
       <mt-field label="购买日期" placeholder="请输入购买日期" type="date" v-model="buyTime"></mt-field>
       <mt-field label="车辆品牌" placeholder="请输入车辆品牌" v-model="brand"></mt-field>
       <mt-field label="车辆型号" placeholder="请输入车辆型号" v-model="model"></mt-field>
-      <mt-field label="车架号" placeholder="请输入车辆号" v-model="vin"></mt-field>
-      <mt-field label="购买金额" placeholder="请输入购买金额" v-model="buyPrice"></mt-field>
+      <mt-field label="车架号" placeholder="请输入合格证中的车架号" v-model="vin"></mt-field>
+      <mt-field label="购买金额" placeholder="赔付不超过车价" v-model="buyPrice"></mt-field>
       <mt-cell title="所在省市" :value="address" @click.native="cityPickerVisible = true"></mt-cell>
 
       <mt-cell title="购车发票">
@@ -48,7 +48,7 @@
 
     </div>
 
-    <div class="table-head-title">保险方案</div>
+    <div class="table-head-title">保险方案（保险赔付不超过车辆发票价格，请确认后购买）</div>
     <mt-radio
       align="right"
       class="page-part"
@@ -56,29 +56,29 @@
       :options="options">
     </mt-radio>
 
-    <div class="p-detail-container lm-font-sm">
+    <label class="p-detail-container lm-font-sm">
+      <span class="mint-checkbox">
+        <input class="mint-checkbox-input" type="checkbox" v-model="agreement">
+        <span class="mint-checkbox-core"></span>
+      </span>
+      <span style="margin-left: 0.5rem;margin-top: -0.08rem">已阅读<a class="p-link" href="http://cjl3.rokyinfo.net/anbxtk/zabxtk.html">《保险条款》</a>，理解并接受包括有关责任条款及免除责任条款，承保地域限制等约定。</span>
+    </label>
 
-      <label class="mint-checklist-label">
-        <span class="mint-checkbox">
-          <input class="mint-checkbox-input" type="checkbox" v-model="agreement">
-          <span class="mint-checkbox-core"></span>
-        </span>
-        我已阅读并同意
-      </label>
-      <a class="p-link lm-font-default" href="http://cjl3.rokyinfo.net/anbxtk/zabxtk.html">《保险条款》</a>。
-    </div>
+    <label class="p-detail-container lm-font-sm">
+      <span class="mint-checkbox">
+        <input class="mint-checkbox-input" type="checkbox" v-model="agreement1">
+        <span class="mint-checkbox-core"></span>
+      </span>
+      <span style="margin-left: 0.5rem;margin-top: -0.08rem">已知本保险承担的"两轮非机动车"定义以《中华人名共和国道路交通法》及其他相关法律法规规定为准。</span>
+    </label>
 
-    <div class="p-detail-container-1 lm-font-sm">
-
-      <label class="mint-checklist-label">
-        <span class="mint-checkbox">
-          <input class="mint-checkbox-input" type="checkbox" v-model="agreement1">
-          <span class="mint-checkbox-core"></span>
-        </span>
-        已知本保险承担的"两轮非机动车"定义以《中华人名共和国道路交通法》及其他相关法律法规规定为准。
-      </label>
-
-    </div>
+    <label class="p-detail-container-1 lm-font-sm">
+      <span class="mint-checkbox">
+        <input class="mint-checkbox-input" type="checkbox" v-model="agreement2">
+        <span class="mint-checkbox-core"></span>
+      </span>
+      <span style="margin-left: 0.5rem;margin-top: -0.08rem">已知并授权服务商上海互邻获得您的车辆定位信息，并接受相关产品使用指导及防盗提醒。</span>
+    </label>
 
     <div class="settlement">
       <div>
@@ -102,14 +102,16 @@
 </template>
 
 <script>
-  import {Indicator, Toast} from 'mint-ui'
+  import {Indicator, Toast, MessageBox} from 'mint-ui'
   import {address, slots} from '../components/address'
   export default {
     name: 'insurance-detail',
     data () {
       return {
+        pImage: '../static/images/p-b.png',
         agreement: false,
         agreement1: false,
+        agreement2: false,
         applicant: null,
         phoneNumber: null,
         idNumber: null,
@@ -134,7 +136,16 @@
         tempAddress: '',
         optionValue: '0',
         options: [],
-        alipay: ''// ali支付form表单信息
+        giveInsId: '',
+        // ali支付form表单信息
+        alipay: ''
+      }
+    },
+    watch: {
+      ccuSn (val, oldval) {
+        if (val.length === 10) {
+          this.checkCcuSn()
+        }
       }
     },
     computed: {
@@ -147,14 +158,13 @@
       },
       selectedSolution: function () {
         if (this.options && this.options.length > 0) {
-          return this.options[Number(this.optionValue)].desc
+          return this.options[Number(this.optionValue)].coverage
         } else {
           return ''
         }
       }
     },
     methods: {
-
       initAddress () {
         this.addressSlots[0].values = address.filter((item, index) => {
           if (item.apid === 0) {
@@ -224,11 +234,55 @@
 
               return item
             })
+            this.giveIns()
           }
         })
           .catch(error => {
             console.log(error)
           })
+      },
+      checkCcuSn () {
+        this.axios.get('/v1.0/ebike/detail',
+          {
+            params: {
+              ccuSn: this.ccuSn
+            }
+          }
+        ).then((res) => {
+          if (res.data.code === 0) {
+            if (res.data.data.length > 0) {
+              let scooter = res.data.data[0]
+              if (!scooter.online) {
+                Toast('设备不在线！')
+              }
+              this.giveInsId = scooter.insuranceId
+              this.giveIns()
+            } else {
+              Toast('您输入的设备不存在，请重新输入！')
+            }
+          } else {
+            Toast(res.data.msg)
+          }
+          console.log(res)
+        })
+          .catch(error => {
+            console.log(error)
+          })
+      },
+      giveIns () {
+        if (this.giveInsId.length > 0) {
+          if (this.options && this.options.length > 0) {
+            for (let i = 0; i < this.options.length; i++) {
+              let option = this.options[i]
+              option.disabled = true
+              if (option.id === Number(this.giveInsId)) {
+                this.optionValue = String(i)
+                option.price = 0
+                MessageBox.alert('此设备赠送保险，完善资料后可免费领取')
+              }
+            }
+          }
+        }
       },
       updateImg (tag) {
         console.log(tag)
@@ -308,7 +362,15 @@
           return false
         }
         if (!this.agreement) {
-          Toast('请勾选 我已阅读并同意《保险条款》和《投保须知》')
+          Toast('请勾选 已阅读《保险条款》，理解并接受包括有关责任条款及免除责任条款，承保地域限制等约定。')
+          return false
+        }
+        if (!this.agreement1) {
+          Toast('请勾选 已知本保险承担的"两轮非机动车"定义以《中华人名共和国道路交通法》及其他相关法律法规规定为准。')
+          return false
+        }
+        if (!this.agreement1) {
+          Toast('请勾选 已知并授权服务商上海互邻获得您的车辆定位信息，并接受相关产品使用指导及防盗提醒。')
           return false
         }
         let param = new FormData()
@@ -346,10 +408,12 @@
             console.log(res)
             Indicator.close()
             if (res.data.code === 0) {
-              this.alipay = res.data.data
-              setTimeout(function () {
-                document.forms['_alipaysubmit_'].submit()
-              }, 0)
+              if (res.data.data) {
+                this.alipay = res.data.data
+                setTimeout(function () {
+                  document.forms['_alipaysubmit_'].submit()
+                }, 0)
+              }
             } else {
               Toast(res.data.msg)
             }
@@ -360,11 +424,19 @@
       }
     },
     mounted () {
-      this.initAddress()
       if (!this.$store.state.currentIns.description) {
         this.$router.go(-1)
+        return
       }
+      this.pImage = this.$store.state.currentIns.imageLarge
       document.title = this.$store.state.currentIns.title
+      if (!this.$store.state.qddUserId) {
+        MessageBox.alert('您还没有登录，请先登录').then(action => {
+          this.$router.go(-1)
+        })
+      }
+
+      this.initAddress()
       this.loadSolutionList()
     }
   }
@@ -426,7 +498,6 @@
 
   .p-link{
     color: #3B9AD9;
-    margin-top: -5px;
   }
 
   .p-detail-container {
@@ -439,7 +510,7 @@
     /*排列 起始端对齐*/
     justify-content: flex-start;
     /*对齐 居中对齐*/
-    align-items: center;
+    align-items: flex-start;
     align-content: flex-start;
     margin: 1rem 1rem 0 1rem;
   }
@@ -454,9 +525,9 @@
     /*排列 起始端对齐*/
     justify-content: flex-start;
     /*对齐 居中对齐*/
-    align-items: center;
+    align-items: flex-start;
     align-content: flex-start;
-    margin: 1rem 1rem 4rem 1rem;
+    margin: 1rem 1rem 5rem 1rem;
   }
 
   .settlement {
@@ -494,8 +565,10 @@
   }
 
   .avatar > img {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: auto;
+    height: auto;
+    max-width: 2.5rem;
+    max-height: 2.5rem;
   }
   .avatar .upImg {
     position: absolute;

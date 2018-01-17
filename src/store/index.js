@@ -8,7 +8,7 @@ Vue.use(Vuex)
 const state = {
 
   currentIns: {},
-  qddUserId: '',
+  qddUserId: null,
   selectedOrderStatus: '0',
   orderList: [],
   currentOrderIndex: 0
