@@ -61,7 +61,7 @@
         <input class="mint-checkbox-input" type="checkbox" v-model="agreement">
         <span class="mint-checkbox-core"></span>
       </span>
-      <span style="margin-left: 0.5rem;margin-top: -0.08rem">已阅读<a class="p-link" href="http://cjl3.rokyinfo.net/anbxtk/zabxtk.html">《保险条款》</a>，理解并接受包括有关责任条款及免除责任条款，承保地域限制等约定。</span>
+      <span style="margin-left: 0.5rem;margin-top: -0.08rem">已阅读<a class="p-link" href="http://cjl3.rokyinfo.net/anbxtk/zabxtk.html">《保险条款》</a><a style="color: #3b9ad9" href="http://cjl3.rokyinfo.net/anbxtk/zalplc.html">《理赔流程》</a>，理解并接受包括有关责任条款及免除责任条款，承保地域限制等约定。</span>
     </label>
 
     <label class="p-detail-container lm-font-sm">
@@ -77,7 +77,7 @@
         <input class="mint-checkbox-input" type="checkbox" v-model="agreement2">
         <span class="mint-checkbox-core"></span>
       </span>
-      <span style="margin-left: 0.5rem;margin-top: -0.08rem">已知并授权服务商上海互邻获得您的车辆定位信息，并接受相关产品使用指导及防盗提醒。</span>
+      <span style="margin-left: 0.5rem;margin-top: -0.08rem">已知并授权服务商众安保险获得您的车辆定位信息，并接受相关产品使用指导及防盗提醒。</span>
     </label>
 
     <div class="settlement">
@@ -369,8 +369,8 @@
           Toast('请勾选 已知本保险承担的"两轮非机动车"定义以《中华人名共和国道路交通法》及其他相关法律法规规定为准。')
           return false
         }
-        if (!this.agreement1) {
-          Toast('请勾选 已知并授权服务商上海互邻获得您的车辆定位信息，并接受相关产品使用指导及防盗提醒。')
+        if (!this.agreement2) {
+          Toast('请勾选 已知并授权服务商众安保险获得您的车辆定位信息，并接受相关产品使用指导及防盗提醒。')
           return false
         }
         let param = new FormData()

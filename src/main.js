@@ -12,7 +12,8 @@ import App from './App.vue'
 Vue.use(MintUI)
 Vue.prototype.axios = axios
 
-axios.defaults.baseURL = 'http://cjl3.rokyinfo.net:8110'
+// axios.defaults.baseURL = 'http://cjl3.rokyinfo.net:8110'
+axios.defaults.baseURL = 'http://cjl3.rokyinfo.net:7110'
 
 Vue.config.productionTip = false
 
